@@ -147,6 +147,7 @@ SECTIONS
     /* This is used by the startup in order to initialize the .bss section */
     _sbss = .;         /* define a global symbol at bss start */
     __bss_start__ = _sbss;
+    *(.igot.plt)       /* The added section */
     *(.bss)
     *(.bss*)
     *(COMMON)
