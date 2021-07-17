@@ -43,3 +43,95 @@ CMSIS-Core (Cortex-M) implements the basic run-time system for a Cortex-M device
 <img src="imgs/stm32f4_cmsis_core.png">
 <img src="imgs/stm32f4_cmsis_core_fs.jpg">
 
+## CMSIS drivers
+
+<q> The CMSIS-Driver specification is a software API that describes peripheral driver interfaces for middleware stacks and user applications.</q>
+
+### Access struct
+<q>The Access Struct is the interface of a driver to the middleware component or the user application.</q>
+
+<q>A CMSIS-Driver publishes an Access Struct with the data type name ARM_DRIVER_xxxx that gives to access the driver functions.</q> e.g. <code>ARM_DRIVER_SPI</code>
+
+<img src="imgs/cmsis_drivers.png">
+
+### Peripheral Driver Interfaces and Middleware
+- <strong>CAN:</strong> Interface to CAN bus peripheral.
+- <strong>Ethernet:</strong> Interface to Ethernet MAC and PHY peripheral.
+- <strong>I2C:</strong> Multi-master Serial Single-Ended Bus interface driver.
+- <strong>MCI:</strong> Memory Card Interface for SD/MMC memory.
+- <strong>NAND:</strong> NAND Flash Memory interface driver.
+- <strong>Flash:</strong> Flash Memory interface driver.
+- <strong>SAI:</strong> Serial audio interface driver (I2s, PCM, AC'97, TDM, MSB/LSB Justified).
+- <strong>SPI:</strong> Serial Peripheral Interface Bus driver.
+- <strong>Storage:</strong> Storage device interface driver.
+- <strong>USART:</strong> Universal Synchronous and Asynchronous Receiver/Transmitter interface driver.
+- <strong>USB:</strong> Interface driver for USB Host and USB Device communication.
+- <strong>VIO:</strong> API for virtual I/Os (VIO).
+- <strong>WiFi:</strong> Interface driver for wireless communication. 
+
+### Data Transfer Functions
+A CMSIS-Driver implements non-blocking functions to transfer data to a peripheral. This means that the driver configures the read or write access to the peripheral and instantly returns to the calling application. The function names for data transfer end with:
+
+- <strong>Send</strong> to write data to a peripheral.
+- <strong>Receive</strong> to read data from a peripheral.
+- <strong>Transfer</strong> to indicate combined read/write operations to a peripheral.
+During a data transfer, the application can query the number of transferred data items using functions named GetxxxCount. On completion of a data transfer, the driver calls a callback function with a specific event code.
+
+During the data exchange with the peripheral, the application can decide to:
+
+- Wait (using an RTOS scheduler) for the callback completion event. The RTOS is controlled by the application code which makes the driver itself RTOS independent.
+- Use polling functions that return the number of transferred data items to show progress information or partly read or fill data transfer buffers.
+- Prepare another data transfer buffer for the next data transfer.
+- The following diagram shows the basic communication flow when using the _Send function in an application.
+
+<img src="imgs/Non_blocking_transmit_small.png">
+
+### Files
+
+- <code>Device_<i>interface</i> </code> e.g. <code>Device_USART</code> This file contains the device struct declartion and this's the file included by the the middlewares and user application.
+- <code>Device_Common.h</code> This file includes the common code between the communication peripherals interfaces e.g. general return code.
+- <code>RTE_Device.h</code> This file is used to configure the peripherals interface enable state and the attached GPIO pins. 
+- The rest are implementation dependent.
+
+### Example 1: Keil IDE for STM32F407VG USART1 peripheral
+
+<img src="imgs/stm32f4_cmsis_drivers_uart.png">
+<img src="imgs/stm32_cmsis_drivers.png">
+
+### Example 2: application code for SPI
+```C
+#include "Driver_USART.h"
+extern ARM_DRIVER_USART Driver_USART1;
+
+extern uint8_t g_rcvData;
+uint8_t g_rcvData;
+
+static void myUSART_callback(uint32_t event);
+static void myUSART_callback(uint32_t event)
+{
+	ARM_DRIVER_USART* usart1 = &Driver_USART1;
+	
+	switch(event) {
+		case ARM_USART_EVENT_RECEIVE_COMPLETE:
+			usart1->Send(&g_rcvData, 1);
+			break;
+	}
+}
+
+int main () {
+	ARM_DRIVER_USART* usart1 = &Driver_USART1;
+	
+	usart1->Initialize(myUSART_callback);
+	usart1->PowerControl(ARM_POWER_FULL);
+	usart1->Control(ARM_USART_MODE_ASYNCHRONOUS, 9600);
+	usart1->Receive(&g_rcvData, 1);
+	
+	while(1);
+}
+
+```
+
+### reference 
+<a href="https://www.keil.com/pack/doc/CMSIS/Driver/html/theoryOperation.html">https://www.keil.com/pack/doc/CMSIS/Driver/html/theoryOperation.html</a>
+
+
