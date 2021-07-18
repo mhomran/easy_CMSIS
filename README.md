@@ -150,6 +150,8 @@ int main () {
 
 <q>The CMSIS DSP is software library, a suite of common signal processing functions for use on Cortex-M and Cortex-A processor based devices.</q>
 
+It's fully implemented by ARM and uploaded on GitHub.
+
 The library is divided into a number of functions each covering a specific category:
 
 - Basic math functions
@@ -175,7 +177,9 @@ When using a vectorized version, provide a little bit of padding after the end o
 - Using uVision IDE, choose CMSIS DSP as a software component.
 - Include the right DSP header file for your CMSIS API by searching for its location; right click on it and press "Go to the definition".
 
-### Example 1: mean function
+
+
+### Example 1: mean function with Keil
 
 ```C
 #include "dsp/statistics_functions_f16.h"
@@ -190,4 +194,38 @@ int main () {
 
 ```
 
+### Example 2: mean function with GCC
 
+#### To generate the library (.a files):
+
+- Clone the CMSIS repository.
+- Install CMake if you don't have it.
+- Head to <code>CMSIS_5/CMSIS/DSP/source</code>
+- Run cmake like this
+	```
+	cmake -DCMAKE_PREFIX_PATH="C:\Program Files (x86)\GNU Arm Embedded Toolchain\10 2020-q4-major" \
+	-DCMAKE_TOOLCHAIN_FILE="D:\Workspaces\GitHub\cmsis_dsp\CMSIS_5\CMSIS\DSP\gcc.cmake" \
+	-DARM_CPU="cortex-m4" \
+	-DROOT="D:\Workspaces\GitHub\cmsis_dsp\CMSIS_5" \
+	-G "Unix Makefiles"
+	```
+	- <code>CMAKE_PREFIX_PATH</code> should contain a path to GCC toolchain
+	- <code>ARM_CPU</code> determine the CPU
+	- <code>ROOT</code> The path to CMSIS repository
+	- <code>G</code> The output of cmake (it's makefiles in this case).
+- run <code>make</code> (you should have make)
+
+### Add the library to the project 
+- Make a folder with the name <code>lib</code> and add the libraries (e.g. libCMSISDSPStatistics) in it.
+- Add the library name (without lib prefix and .a suffix) and the path to the linker flags:
+	```
+	-Llibs -lCMSISDSPStatistics
+	```
+- Add FPU flags
+	```
+	FPU_FLAGS     := -mfloat-abi=hard -fsingle-precision-constant -mfpu=fpv4-sp-d16
+	```
+- Include the library and use it
+	```
+	#include "DSP/Include/dsp/statistics_functions.h"
+	```
