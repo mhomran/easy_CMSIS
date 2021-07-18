@@ -229,3 +229,7 @@ int main () {
 	```
 	#include "DSP/Include/dsp/statistics_functions.h"
 	```
+- Define for the compiler:
+	```
+	-D ARM_MATH_CM4
+	```
