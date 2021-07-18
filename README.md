@@ -101,6 +101,8 @@ During the data exchange with the peripheral, the application can decide to:
 ### Example 2: application code for SPI
 ```C
 #include "Driver_USART.h"
+#include "stm32f4xx_hal.h"
+
 extern ARM_DRIVER_USART Driver_USART1;
 
 extern uint8_t g_rcvData;
@@ -111,22 +113,32 @@ static void myUSART_callback(uint32_t event)
 {
 	ARM_DRIVER_USART* usart1 = &Driver_USART1;
 	
-	switch(event) {
-		case ARM_USART_EVENT_RECEIVE_COMPLETE:
-			usart1->Send(&g_rcvData, 1);
-			break;
+	if((event & ARM_USART_EVENT_RECEIVE_COMPLETE) == ARM_USART_EVENT_RECEIVE_COMPLETE) {
+		usart1->Send(&g_rcvData, 1);
+		usart1->Receive(&g_rcvData, 1);
 	}
 }
 
 int main () {
+  HAL_Init();
+	
 	ARM_DRIVER_USART* usart1 = &Driver_USART1;
 	
 	usart1->Initialize(myUSART_callback);
 	usart1->PowerControl(ARM_POWER_FULL);
-	usart1->Control(ARM_USART_MODE_ASYNCHRONOUS, 9600);
+	usart1->Control(ARM_USART_MODE_ASYNCHRONOUS |
+                      ARM_USART_DATA_BITS_8 |
+                      ARM_USART_PARITY_NONE |
+                      ARM_USART_STOP_BITS_1 |
+                      ARM_USART_FLOW_CONTROL_NONE, 9600);
+	usart1->Control (ARM_USART_CONTROL_RX, 1);
+	usart1->Control (ARM_USART_CONTROL_TX, 1);
+	
 	usart1->Receive(&g_rcvData, 1);
 	
-	while(1);
+	while(1) {
+		
+	}
 }
 
 ```
