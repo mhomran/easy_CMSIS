@@ -215,7 +215,7 @@ int main () {
 	- <code>G</code> The output of cmake (it's makefiles in this case).
 - run <code>make</code> (you should have make)
 
-### Add the library to the project 
+#### Add the library to the project 
 - Make a folder with the name <code>lib</code> and add the libraries (e.g. libCMSISDSPStatistics) in it.
 - Add the library name (without lib prefix and .a suffix) and the path to the linker flags:
 	```
