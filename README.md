@@ -146,4 +146,48 @@ int main () {
 ### reference 
 <a href="https://www.keil.com/pack/doc/CMSIS/Driver/html/theoryOperation.html">https://www.keil.com/pack/doc/CMSIS/Driver/html/theoryOperation.html</a>
 
+### CMSIS DSP
+
+<q>The CMSIS DSP is software library, a suite of common signal processing functions for use on Cortex-M and Cortex-A processor based devices.</q>
+
+The library is divided into a number of functions each covering a specific category:
+
+- Basic math functions
+- Fast math functions
+- Complex math functions
+- Filtering functions
+- Matrix functions
+- Transform functions
+- Motor control functions
+- Statistical functions
+- Support functions
+- Interpolation functions
+- Support Vector Machine functions (SVM)
+- Bayes classifier functions
+- Distance functions
+- Quaternion functions
+
+The library has generally separate functions for operating on 8-bit integers, 16-bit integers, 32-bit integer and 32-bit floating-point values.
+
+When using a vectorized version, provide a little bit of padding after the end of a buffer (3 words) because the vectorized code may read a little bit after the end of a buffer. You don't have to modify your buffers but just ensure that the end of buffer + padding is not outside of a memory region.
+
+### Using the Library
+- Using uVision IDE, choose CMSIS DSP as a software component.
+- Include the right DSP header file for your CMSIS API by searching for its location; right click on it and press "Go to the definition".
+
+### Example 1: mean function
+
+```C
+#include "dsp/statistics_functions_f16.h"
+
+int main () {
+	float16_t vec[] = {1, 2, 3};
+	float16_t result;
+	arm_mean_f16(vec, sizeof(vec)/sizeof(*vec), &result);
+	
+	while(1);
+}
+
+```
+
 
